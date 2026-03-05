@@ -50,6 +50,14 @@ export interface Collaborator {
   acceptedAt?: string
 }
 
+/** Pending collaborator for create form (no projectId yet) */
+export interface PendingCollaborator {
+  id: string
+  email: string
+  role: string
+  status?: 'pending' | 'accepted'
+}
+
 export interface ProjectTemplate {
   id: string
   name: string
