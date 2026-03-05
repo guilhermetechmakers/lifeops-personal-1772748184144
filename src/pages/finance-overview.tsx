@@ -115,9 +115,9 @@ export function FinanceOverviewPage() {
           <CardHeader>
             <CardTitle>Quick actions</CardTitle>
             <CardContent className="flex flex-col gap-2">
-              <Link to="/dashboard/finance/transactions">
+              <Link to="/dashboard/history">
                 <Button variant="outline" className="w-full justify-start">
-                  View transactions
+                  Order & transaction history
                 </Button>
               </Link>
               <Link to="/dashboard/finance/budget">

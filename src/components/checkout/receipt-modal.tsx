@@ -119,14 +119,14 @@ export function ReceiptModal({
               Download receipt
             </Button>
           )}
-          <Link to="/dashboard/finance/transactions">
+          <Link to="/dashboard/history">
             <Button
               variant="outline"
               className="w-full justify-center gap-2"
               onClick={() => onOpenChange(false)}
             >
               <FileText className="h-4 w-4" aria-hidden />
-              View transaction history
+              View order & transaction history
             </Button>
           </Link>
           <Link to="/dashboard/settings">

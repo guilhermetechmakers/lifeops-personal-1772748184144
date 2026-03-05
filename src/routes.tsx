@@ -20,6 +20,7 @@ import { SettingsPage } from '@/pages/settings'
 import { ProfilePage } from '@/pages/profile'
 import { AboutPage } from '@/pages/about'
 import { CheckoutPage } from '@/pages/checkout'
+import { HistoryPage } from '@/pages/history'
 import { NotFoundPage } from '@/pages/not-found'
 import { LegalPage } from '@/pages/legal'
 
@@ -63,6 +64,7 @@ export const router = createBrowserRouter([
       { path: 'settings', element: <SettingsPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'checkout', element: <CheckoutPage /> },
+      { path: 'finance/history', element: <HistoryPage /> },
     ],
   },
   { path: '/404', element: <NotFoundPage /> },
