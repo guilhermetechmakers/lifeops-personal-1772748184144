@@ -1,58 +1,126 @@
 /**
- * ContentEditorPage - WYSIWYG editor with AI ideation, SEO, and publish
+ * ContentEditorPage - Full Content Editor & SEO Assistant
+ * WYSIWYG editor with AI ideation, SEO, scoring, scheduling
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Sparkles } from 'lucide-react'
+import { ArrowLeft, Send, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SEOInsightsPanel } from '@/components/content-editor/seo-insights-panel'
-import { getContent } from '@/api/content'
+import {
+  ContentEditorPanel,
+  AIIdeaOutlineGenerator,
+  SEOPanel,
+  ContentScoringPanel,
+  SchedulerPanel,
+  PublishQueueChannelPreviews,
+  ContentTemplatesLibrary,
+} from '@/components/content-editor'
+import { ContentEditorProvider, useContentEditor } from '@/context/content-editor-context'
+import {
+  getContent,
+  createContent,
+  updateContent,
+  publishContent,
+} from '@/api/content'
 import type { ContentItem } from '@/types/content'
 import { toast } from 'sonner'
 
-export function ContentEditorPage() {
+function ContentEditorInner() {
   const { id } = useParams()
   const isNew = id === 'new' || !id
+  const {
+    draft,
+    loadDraft,
+    getDraftForSave,
+  } = useContentEditor()
 
-  const [content, setContent] = useState<ContentItem | null>(null)
   const [loading, setLoading] = useState(!isNew)
-  const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
-  const [channel, setChannel] = useState('')
-
+  const [publishing, setPublishing] = useState(false)
+  const [scheduledAt, setScheduledAt] = useState<string | null>(null)
+  const [channelIds, setChannelIds] = useState<string[]>([])
   useEffect(() => {
     if (isNew) return
     const contentId = id ?? ''
     setLoading(true)
     getContent(contentId)
       .then((item) => {
-        if (item) {
-          setContent(item)
-          setTitle(item?.title ?? '')
-          setChannel(item?.channel ?? '')
-        }
+        if (item) loadDraft(item as ContentItem)
+        setScheduledAt(item?.scheduled_at ?? item?.scheduledDate ?? null)
+        setChannelIds(Array.isArray(item?.channel_ids) ? item.channel_ids : [])
       })
       .finally(() => setLoading(false))
-  }, [id, isNew])
+  }, [id, isNew, loadDraft])
 
-  const handleGenerateIdeas = () => {
-    toast.info('Generating ideas...')
-  }
+  const handleScheduleChange = useCallback((date: string | null, ids: string[]) => {
+    setScheduledAt(date)
+    setChannelIds(ids)
+  }, [])
 
-  const handleSEOSuggestions = () => {
-    toast.info('Fetching SEO suggestions...')
-  }
+  const handlePublish = useCallback(async () => {
+    const d = getDraftForSave()
+    if (!d) return
+    const titleLen = (d.title ?? '').trim().length
+    const contentLen = (d.content ?? '').replace(/<[^>]*>/g, '').trim().length
+    if (titleLen < 6 || titleLen > 120) {
+      toast.error('Title must be 6-120 characters')
+      return
+    }
+    if (contentLen < 20) {
+      toast.error('Content must be at least 20 characters')
+      return
+    }
 
-  const handlePublish = () => {
-    toast.success('Publish flow would run here')
-  }
+    setPublishing(true)
+    try {
+      let pid = d.id
+      if (isNew || !pid) {
+        const created = await createContent({
+          title: d.title?.trim(),
+          content: d.content,
+          channel: d.channel ?? 'blog',
+          channel_ids: channelIds.length > 0 ? channelIds : (d.channel_ids ?? []),
+          scheduled_at: scheduledAt,
+          draft: true,
+        })
+        pid = created?.id ?? ''
+        if (pid && created) loadDraft(created as ContentItem)
+      } else {
+        await updateContent(pid, {
+          title: d.title?.trim(),
+          content: d.content,
+          channel_ids: channelIds.length > 0 ? channelIds : d.channel_ids,
+          scheduled_at: scheduledAt ?? undefined,
+        })
+      }
 
-  if (loading) {
+      if (scheduledAt) {
+        toast.success('Content scheduled')
+      } else if (pid) {
+        await publishContent(pid)
+        toast.success('Published!')
+      }
+    } catch {
+      toast.error('Failed to publish')
+    } finally {
+      setPublishing(false)
+    }
+  }, [getDraftForSave, isNew, channelIds, scheduledAt, loadDraft])
+
+  const scheduledItems = scheduledAt
+    ? [
+        {
+          id: draft?.id ?? 'temp',
+          title: draft?.title ?? 'Untitled',
+          channel: 'blog',
+          scheduledAt,
+          status: 'pending' as const,
+        },
+      ]
+    : []
+
+  if (loading && !isNew) {
     return (
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-center gap-4">
@@ -86,86 +154,66 @@ export function ContentEditorPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold">
-            {isNew ? 'New content' : `Edit: ${content?.title ?? 'Content'}`}
+            {isNew ? 'New content' : `Edit: ${draft?.title ?? 'Content'}`}
           </h1>
           <p className="text-muted-foreground">
-            WYSIWYG editor with AI ideation and SEO
+            Content Editor & SEO Assistant
           </p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Title</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Input
-                placeholder="Content title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Body</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <textarea
-                className="min-h-[300px] w-full rounded-xl border border-input bg-card p-4"
-                placeholder="Write your content..."
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-              />
-            </CardContent>
-          </Card>
+          <ContentEditorPanel />
         </div>
+
         <div className="space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" aria-hidden />
-              <CardTitle>AI Assistant</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full" onClick={handleGenerateIdeas}>
-                Generate ideas
-              </Button>
-              <Button variant="outline" className="w-full" onClick={handleSEOSuggestions}>
-                SEO suggestions
-              </Button>
-            </CardContent>
-          </Card>
-          <SEOInsightsPanel
-            seoScore={content?.seoScore ?? 0}
-            suggestions={[]}
-            outlineSuggestions={[]}
+          <AIIdeaOutlineGenerator />
+          <SEOPanel />
+          <ContentScoringPanel />
+          <SchedulerPanel
+            onScheduleChange={handleScheduleChange}
+            onAutoScheduleChange={() => {}}
           />
-          <Card>
-            <CardHeader>
-              <CardTitle>Publish</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="channel">Channel</Label>
-                <Input
-                  id="channel"
-                  placeholder="Blog, LinkedIn, etc."
-                  value={channel}
-                  onChange={(e) => setChannel(e.target.value)}
-                />
-              </div>
-              <Button
-                className="mt-4 w-full gradient-primary text-primary-foreground"
-                onClick={handlePublish}
-              >
-                Publish
-              </Button>
-            </CardContent>
-          </Card>
+          <ContentTemplatesLibrary />
+          <PublishQueueChannelPreviews
+            draftTitle={draft?.title ?? ''}
+            draftContent={draft?.content ?? ''}
+            scheduledItems={scheduledItems}
+            selectedChannelIds={channelIds}
+          />
+
+          <div className="sticky bottom-4">
+            <Button
+              className="w-full gradient-primary text-primary-foreground h-12 text-base hover:scale-[1.02] transition-transform"
+              onClick={handlePublish}
+              disabled={publishing}
+            >
+              {publishing ? (
+                'Publishing...'
+              ) : scheduledAt ? (
+                <>
+                  <Calendar className="h-5 w-5" />
+                  Schedule
+                </>
+              ) : (
+                <>
+                  <Send className="h-5 w-5" />
+                  Publish now
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
+  )
+}
+
+export function ContentEditorPage() {
+  return (
+    <ContentEditorProvider>
+      <ContentEditorInner />
+    </ContentEditorProvider>
   )
 }

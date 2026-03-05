@@ -1,9 +1,10 @@
 /**
  * Content API - LifeOps Personal
  * Content Library, CRUD, publish, schedule, bulk actions, assets
+ * Content Editor: posts, versions, templates, channels
  */
 
-import { apiGet, apiPost, apiPut } from '@/lib/api'
+import { apiGet, apiPost, apiPut, apiPatch } from '@/lib/api'
 import type {
   ContentItem,
   AssetItem,
@@ -11,6 +12,9 @@ import type {
   ContentListResponse,
   AssetListResponse,
   BulkActionType,
+  ContentTemplate,
+  Channel,
+  PostVersion,
 } from '@/types/content'
 
 /** Mock content for development when API is not connected */
@@ -189,8 +193,12 @@ export async function createContent(
     const mock: ContentItem = {
       id: `new-${Date.now()}`,
       title: data?.title ?? 'Untitled',
+      content: data?.content ?? '',
       status: 'draft',
       channel: data?.channel ?? 'blog',
+      channel_ids: Array.isArray(data?.channel_ids) ? data.channel_ids : [],
+      scheduled_at: data?.scheduled_at ?? null,
+      seo: data?.seo ?? {},
       tags: Array.isArray(data?.tags) ? data.tags : [],
       version: 1,
       createdAt: new Date().toISOString(),
@@ -296,4 +304,149 @@ export async function getAsset(id: string): Promise<AssetItem | null> {
   } catch {
     return getMockAssets().find((a) => a.id === id) ?? null
   }
+}
+
+/** Fetch content templates */
+export async function fetchTemplates(): Promise<ContentTemplate[]> {
+  try {
+    const res = await apiGet<{ data: ContentTemplate[] }>('/templates')
+    const list = Array.isArray(res?.data) ? res.data : []
+    if (list.length > 0) return list
+    return getMockTemplates()
+  } catch {
+    return getMockTemplates()
+  }
+}
+
+/** Get template by ID */
+export async function getTemplate(id: string): Promise<ContentTemplate | null> {
+  try {
+    const res = await apiGet<{ data: ContentTemplate }>(`/templates/${id}`)
+    return res?.data ?? null
+  } catch {
+    return getMockTemplates().find((t) => t.id === id) ?? null
+  }
+}
+
+/** Fetch publish channels */
+export async function fetchChannels(): Promise<Channel[]> {
+  try {
+    const res = await apiGet<{ data: Channel[] }>('/channels')
+    const list = Array.isArray(res?.data) ? res.data : []
+    if (list.length > 0) return list
+    return getMockChannels()
+  } catch {
+    return getMockChannels()
+  }
+}
+
+/** Fetch version history for a post */
+export async function fetchVersions(postId: string): Promise<PostVersion[]> {
+  try {
+    const res = await apiGet<{ data: PostVersion[] }>(`/versions/${postId}`)
+    return Array.isArray(res?.data) ? res.data : []
+  } catch {
+    return []
+  }
+}
+
+/** Create version */
+export async function createVersion(payload: {
+  post_id: string
+  content: string
+  title: string
+}): Promise<PostVersion | null> {
+  try {
+    const res = await apiPost<{ data: PostVersion }>('/versions', payload)
+    return res?.data ?? null
+  } catch {
+    return null
+  }
+}
+
+/** PATCH /content/{id} - update content, status, schedule */
+export async function patchPost(
+  id: string,
+  data: Partial<{
+    title: string
+    content: string
+    scheduled_at: string | null
+    status: ContentItem['status']
+    seo: ContentItem['seo']
+    channel_ids: string[]
+  }>
+): Promise<ContentItem | null> {
+  try {
+    const res = await apiPatch<{ data: ContentItem }>(`/content/${id}`, data)
+    return res?.data ?? null
+  } catch {
+    const mock = getMockContent().find((c) => c.id === id)
+    return mock ? { ...mock, ...data } : null
+  }
+}
+
+/** POST /content/{id}/publish */
+export async function publishPost(
+  id: string,
+  channelIds?: string[]
+): Promise<ContentItem | null> {
+  try {
+    const res = await apiPost<{ data: ContentItem }>(`/content/${id}/publish`, {
+      channel_ids: channelIds,
+    })
+    return res?.data ?? null
+  } catch {
+    const mock = getMockContent().find((c) => c.id === id)
+    return mock ? { ...mock, status: 'published' as const } : null
+  }
+}
+
+/** Mock templates */
+function getMockTemplates(): ContentTemplate[] {
+  return [
+    {
+      id: 't1',
+      type: 'article',
+      name: 'Blog Post',
+      content: '## Introduction\n\n{{intro}}\n\n## Main Content\n\n{{body}}\n\n## Conclusion\n\n{{conclusion}}',
+      seoSnippets: {
+        keywords: ['blog', 'content'],
+        metaDescription: 'A compelling blog post about {{topic}}.',
+        titleTemplate: '{{topic}} - {{brand}}',
+      },
+    },
+    {
+      id: 't2',
+      type: 'social',
+      name: 'LinkedIn Post',
+      content: '{{hook}}\n\n{{body}}\n\n{{cta}}',
+      seoSnippets: {
+        keywords: ['linkedin', 'professional'],
+        metaDescription: 'A professional LinkedIn post.',
+        titleTemplate: 'LinkedIn: {{topic}}',
+      },
+    },
+    {
+      id: 't3',
+      type: 'social',
+      name: 'Twitter/X Thread',
+      content: '{{tweet1}}\n\n{{tweet2}}\n\n{{tweet3}}',
+      seoSnippets: {
+        keywords: ['twitter', 'thread'],
+        metaDescription: 'A Twitter thread.',
+        titleTemplate: 'Thread: {{topic}}',
+      },
+    },
+  ]
+}
+
+/** Mock channels */
+function getMockChannels(): Channel[] {
+  return [
+    { id: 'ch1', name: 'Blog', platform: 'blog', icon: 'FileText' },
+    { id: 'ch2', name: 'Twitter/X', platform: 'twitter', icon: 'Twitter' },
+    { id: 'ch3', name: 'LinkedIn', platform: 'linkedin', icon: 'Linkedin' },
+    { id: 'ch4', name: 'Facebook', platform: 'facebook', icon: 'Facebook' },
+    { id: 'ch5', name: 'Instagram', platform: 'instagram', icon: 'Instagram' },
+  ]
 }
