@@ -123,11 +123,11 @@ export function DashboardLayout() {
           })}
         </nav>
 
-        {/* Mobile FAB */}
+        {/* Mobile FAB - context-aware: Content vs Projects */}
         <Link
-          to="/dashboard/projects/new"
+          to={location.pathname.startsWith('/dashboard/content') ? '/dashboard/content/new' : '/dashboard/projects/new'}
           className="fixed bottom-20 right-4 z-50 md:hidden"
-          aria-label="Create new"
+          aria-label={location.pathname.startsWith('/dashboard/content') ? 'Create new content' : 'Create new project'}
         >
           <Button
             size="icon"
