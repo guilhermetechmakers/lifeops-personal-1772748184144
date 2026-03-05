@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FolderKanban, FileText, Wallet, Heart, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { PermissionManagerPanel } from '@/components/onboarding/permission-manager-panel'
 import { toast } from 'sonner'
 
 const modules = [
@@ -16,6 +17,17 @@ export function OnboardingPage() {
   const navigate = useNavigate()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [step, setStep] = useState(1)
+  const [modulePermissions, setModulePermissions] = useState<Record<string, boolean>>({
+    projects: true,
+    content: true,
+    finance: true,
+    health: true,
+  })
+  const [agentPermissions, setAgentPermissions] = useState<Record<string, boolean>>({
+    'scheduler-agent': true,
+    'finance-agent': true,
+    'content-agent': true,
+  })
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -25,6 +37,14 @@ export function OnboardingPage() {
       return next
     })
   }
+
+  const handleModuleChange = useCallback((moduleId: string, enabled: boolean) => {
+    setModulePermissions((p) => ({ ...p, [moduleId]: enabled }))
+  }, [])
+
+  const handleAgentChange = useCallback((agentId: string, enabled: boolean) => {
+    setAgentPermissions((p) => ({ ...p, [agentId]: enabled }))
+  }, [])
 
   const handleContinue = () => {
     if (step < 2) {
@@ -81,20 +101,13 @@ export function OnboardingPage() {
                 ))}
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="rounded-xl border border-border p-4">
-                  <p className="font-medium">Suggest by default</p>
-                  <p className="text-sm text-muted-foreground">
-                    AI will propose actions. You review and approve before they run.
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border p-4">
-                  <p className="font-medium">Require approval for actions</p>
-                  <p className="text-sm text-muted-foreground">
-                    No automatic actions without your explicit approval.
-                  </p>
-                </div>
-              </div>
+              <PermissionManagerPanel
+                modulePermissions={modulePermissions}
+                agentPermissions={agentPermissions}
+                onModuleChange={handleModuleChange}
+                onAgentChange={handleAgentChange}
+                auditTrailHref="/dashboard"
+              />
             )}
 
             <div className="mt-8 flex justify-between">

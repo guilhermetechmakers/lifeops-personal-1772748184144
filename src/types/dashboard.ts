@@ -73,3 +73,18 @@ export interface SearchResult {
 export interface SearchResponse {
   results: SearchResult[]
 }
+
+export type ActivityType =
+  | 'agent_action'
+  | 'content_published'
+  | 'transaction_flagged'
+  | 'workout_completed'
+
+export interface ActivityItem {
+  id: string
+  type: ActivityType
+  text: string
+  timestamp: string
+  actionId?: string
+  href?: string
+}

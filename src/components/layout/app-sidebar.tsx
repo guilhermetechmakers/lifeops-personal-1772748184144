@@ -14,6 +14,7 @@ import {
   Search,
   CreditCard,
   Receipt,
+  ShieldCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -32,6 +33,7 @@ const bottomItems = [
   { to: '/dashboard/checkout', icon: CreditCard, label: 'Checkout' },
   { to: '/dashboard/finance/history', icon: Receipt, label: 'Order History' },
   { to: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
+  { to: '/onboarding', icon: ShieldCheck, label: 'Permissions & Setup' },
   { to: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -58,7 +60,7 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out',
+        'hidden md:flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out',
         collapsed ? 'w-[72px]' : 'w-[240px]'
       )}
     >
