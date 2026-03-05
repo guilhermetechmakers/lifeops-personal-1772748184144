@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -110,6 +111,11 @@ export function SettingsPage() {
                 </div>
                 <input type="checkbox" className="rounded" />
               </div>
+              <Link to="/dashboard/notifications">
+                <Button variant="outline" size="sm" className="mt-4">
+                  Open Notifications Center
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </TabsContent>
