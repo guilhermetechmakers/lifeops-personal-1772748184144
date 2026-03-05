@@ -100,6 +100,16 @@ export function validateBio(value: string | null | undefined): string | null {
   return validateMaxLength(value, 500, 'Bio')
 }
 
+/** URL validation for social links */
+const URL_REGEX = /^https?:\/\/[^\s/$.?#].[^\s]*$/i
+
+export function validateUrl(value: string | null | undefined): string | null {
+  if (value == null || String(value).trim() === '') return null
+  const str = String(value).trim()
+  if (!URL_REGEX.test(str)) return 'Please enter a valid URL'
+  return null
+}
+
 export function validatePassword(value: string | null | undefined): string | null {
   const min = validateMinLength(value, 8, 'Password')
   if (min) return min

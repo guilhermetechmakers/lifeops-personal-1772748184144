@@ -8,6 +8,7 @@ import {
   Heart,
   Bell,
   Settings,
+  User,
   ChevronLeft,
   ChevronRight,
   Plus,
@@ -30,6 +31,7 @@ const navItems = [
 ]
 
 const bottomItems = [
+  { to: '/dashboard/profile', icon: User, label: 'Profile' },
   { to: '/dashboard/checkout', icon: CreditCard, label: 'Checkout' },
   { to: '/dashboard/finance/history', icon: Receipt, label: 'Order History' },
   { to: '/dashboard/notifications', icon: Bell, label: 'Notifications Center' },
