@@ -3,8 +3,17 @@
  * API-ready scaffolding with safe null handling
  */
 
-import { apiGet, apiPost, apiPut } from '@/lib/api'
-import type { Project } from '@/types/projects'
+import { apiGet, apiPost, apiPut, apiPatch } from '@/lib/api'
+import type {
+  Project,
+  ProjectDetail,
+  MilestoneDetail,
+  Task,
+  Subtask,
+  Dependency,
+  AuditLog,
+  AISuggestion,
+} from '@/types/projects'
 
 export interface ProjectsResponse {
   data: Project[] | null
@@ -154,3 +163,175 @@ export async function generateAiPlan(id: string): Promise<unknown> {
     return null
   }
 }
+
+/** Project Detail & Planner API */
+
+/** Mock project detail for development */
+function getMockProjectDetail(projectId: string): ProjectDetail {
+  const now = new Date()
+  const base = now.getTime()
+  const d = (days: number) => new Date(base + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+  const iso = (days: number) => new Date(base + days * 24 * 60 * 60 * 1000).toISOString()
+
+  const milestones: MilestoneDetail[] = [
+    { id: 'm1', projectId, title: 'Design review complete', dueDate: d(7), order: 0, status: 'Active' },
+    { id: 'm2', projectId, title: 'Development phase 1', dueDate: d(21), order: 1, status: 'Pending' },
+    { id: 'm3', projectId, title: 'Launch readiness', dueDate: d(45), order: 2, status: 'Pending' },
+  ]
+
+  const tasks: Task[] = [
+    { id: 't1', projectId, title: 'Research competitors', status: 'Done', dueDate: d(3), priority: 'High', order: 0 },
+    { id: 't2', projectId, title: 'Draft outline', status: 'Done', dueDate: d(5), priority: 'Medium', order: 1 },
+    { id: 't3', projectId, title: 'Design mockups', status: 'In Progress', dueDate: d(10), priority: 'High', order: 2 },
+    { id: 't4', projectId, title: 'User testing', status: 'Backlog', dueDate: d(15), priority: 'Medium', order: 3 },
+    { id: 't5', projectId, title: 'Final review', status: 'Backlog', dueDate: d(20), priority: 'High', order: 4 },
+  ]
+
+  const subtasks: Subtask[] = [
+    { id: 's1', taskId: 't3', title: 'Mobile wireframes', isCompleted: true },
+    { id: 's2', taskId: 't3', title: 'Desktop wireframes', isCompleted: false },
+  ]
+
+  const dependencies: Dependency[] = [
+    { id: 'dep1', fromTaskId: 't1', toTaskId: 't2' },
+    { id: 'dep2', fromTaskId: 't3', toTaskId: 't4' },
+  ]
+
+  const auditLogs: AuditLog[] = [
+    { id: 'a1', projectId, actionType: 'task_completed', actor: 'User', timestamp: iso(-2), details: 'Research competitors marked done' },
+    { id: 'a2', projectId, actionType: 'task_updated', actor: 'AI', timestamp: iso(-1), details: 'Suggested breaking design into phases' },
+  ]
+
+  const aiSuggestions: AISuggestion[] = [
+    {
+      id: 'ai1',
+      projectId,
+      content: 'Add milestone: QA sign-off before launch',
+      explanation: 'Based on similar projects, adding a QA checkpoint reduces post-launch bugs by ~40%.',
+      createdAt: iso(0),
+    },
+  ]
+
+  const project: Project = {
+    id: projectId,
+    ownerId: 'user-1',
+    title: 'Q1 Product Launch',
+    description: 'Launch new product features for Q1',
+    status: 'Active',
+    progress: 65,
+    nextMilestone: { id: 'm1', title: 'Design review complete', dueDate: d(7), completed: false },
+    templateId: null,
+    createdAt: iso(-30),
+    updatedAt: iso(0),
+  }
+
+  return { project, milestones, tasks, subtasks, dependencies, auditLogs, aiSuggestions }
+}
+
+/** Fetch full project detail for planner */
+export async function fetchProjectDetail(projectId: string): Promise<ProjectDetail | null> {
+  try {
+    const res = await apiGet<{ data: ProjectDetail }>(`/projects/${projectId}/detail`)
+    const data = res?.data ?? null
+    if (data) return data
+    return getMockProjectDetail(projectId)
+  } catch {
+    return getMockProjectDetail(projectId)
+  }
+}
+
+/** Alias for fetchProjectDetail */
+export const getProjectDetail = fetchProjectDetail
+
+/** Create milestone */
+export async function createMilestone(projectId: string, data: Partial<MilestoneDetail>): Promise<MilestoneDetail | null> {
+  try {
+    const res = await apiPost<{ data: MilestoneDetail }>(`/projects/${projectId}/milestones`, data)
+    return res?.data ?? null
+  } catch {
+    return null
+  }
+}
+
+/** Update milestone */
+export async function updateMilestone(id: string, data: Partial<MilestoneDetail>): Promise<MilestoneDetail | null> {
+  try {
+    const res = await apiPatch<{ data: MilestoneDetail }>(`/milestones/${id}`, data)
+    return res?.data ?? null
+  } catch {
+    return null
+  }
+}
+
+/** Create task */
+export async function createTask(projectId: string, data: Partial<Task>): Promise<Task | null> {
+  try {
+    const res = await apiPost<{ data: Task }>(`/projects/${projectId}/tasks`, data)
+    return res?.data ?? null
+  } catch {
+    return null
+  }
+}
+
+/** Update task (including status for Kanban) */
+export async function updateTask(id: string, data: Partial<Task>): Promise<Task | null> {
+  try {
+    const res = await apiPatch<{ data: Task }>(`/tasks/${id}`, data)
+    return res?.data ?? null
+  } catch {
+    return null
+  }
+}
+
+/** Add task dependency */
+export async function addTaskDependency(taskId: string, toTaskId: string): Promise<Dependency | null> {
+  try {
+    const res = await apiPost<{ data: Dependency }>(`/tasks/${taskId}/dependencies`, { toTaskId })
+    return res?.data ?? null
+  } catch {
+    return null
+  }
+}
+
+/** Fetch audit log */
+export async function fetchAuditLog(projectId: string): Promise<AuditLog[]> {
+  try {
+    const res = await apiGet<{ data: AuditLog[] }>(`/projects/${projectId}/audit-log`)
+    const list = Array.isArray(res?.data) ? res.data : (res?.data ?? [])
+    return list
+  } catch {
+    return []
+  }
+}
+
+/** Fetch AI suggestions */
+export async function fetchAISuggestions(projectId: string): Promise<AISuggestion[]> {
+  try {
+    const res = await apiGet<{ data: AISuggestion[] }>(`/projects/${projectId}/ai-suggestions`)
+    const list = Array.isArray(res?.data) ? res.data : (res?.data ?? [])
+    return list
+  } catch {
+    return []
+  }
+}
+
+/** Apply AI suggestion */
+export async function applyAISuggestion(suggestionId: string, projectId: string): Promise<boolean> {
+  try {
+    await apiPost('/ai-apply', { suggestionId, projectId })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Update subtask */
+export async function updateSubtask(id: string, data: Partial<Subtask>): Promise<Subtask | null> {
+  try {
+    const res = await apiPatch<{ data: Subtask }>(`/subtasks/${id}`, data)
+    return res?.data ?? null
+  } catch {
+    return null
+  }
+}
+

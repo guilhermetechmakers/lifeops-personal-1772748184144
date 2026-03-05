@@ -12,14 +12,17 @@ import {
 import { Button } from '@/components/ui/button'
 import { RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { ProjectFilters } from '@/types/projects'
+import type { ProjectFilters, NextMilestoneFilter } from '@/types/projects'
 import { DEFAULT_PROJECT_FILTERS } from '@/types/projects'
 
 const STATUS_OPTIONS: { value: ProjectFilters['status']; label: string }[] = [
   { value: 'All', label: 'All' },
+  { value: 'Planning', label: 'Planning' },
   { value: 'Active', label: 'Active' },
+  { value: 'On Hold', label: 'On Hold' },
   { value: 'Paused', label: 'Paused' },
   { value: 'Completed', label: 'Completed' },
+  { value: 'Cancelled', label: 'Cancelled' },
   { value: 'Archived', label: 'Archived' },
 ]
 
@@ -35,6 +38,13 @@ const PRIORITY_OPTIONS: { value: ProjectFilters['priority']; label: string }[] =
   { value: 'High', label: 'High' },
   { value: 'Medium', label: 'Medium' },
   { value: 'Low', label: 'Low' },
+]
+
+const NEXT_MILESTONE_OPTIONS: { value: NextMilestoneFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'has_milestone', label: 'Has next milestone' },
+  { value: 'due_this_week', label: 'Due this week' },
+  { value: 'overdue', label: 'Overdue' },
 ]
 
 export interface FiltersBarProps {
@@ -56,7 +66,9 @@ export function FiltersBar({
     filters?.status !== 'All' ||
     filters?.dueDatePreset !== 'all' ||
     filters?.priority !== 'All' ||
-    selectedTags.length > 0
+    (filters?.nextMilestone ?? 'all') !== 'all' ||
+    selectedTags.length > 0 ||
+    filters?.aiRecommendationsOnly === true
 
   const toggleTag = (tag: string) => {
     const next = selectedTags.includes(tag)
@@ -126,6 +138,37 @@ export function FiltersBar({
             ))}
           </SelectContent>
         </Select>
+
+        <Select
+          value={filters?.nextMilestone ?? 'all'}
+          onValueChange={(v) => onFiltersChange({ nextMilestone: v as NextMilestoneFilter })}
+        >
+          <SelectTrigger className="w-full sm:w-[160px]" aria-label="Filter by next milestone">
+            <SelectValue placeholder="Next milestone" />
+          </SelectTrigger>
+          <SelectContent>
+            {NEXT_MILESTONE_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <button
+          type="button"
+          onClick={() => onFiltersChange({ aiRecommendationsOnly: !filters?.aiRecommendationsOnly })}
+          className={cn(
+            'rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
+            filters?.aiRecommendationsOnly
+              ? 'gradient-primary text-primary-foreground shadow'
+              : 'border border-border bg-card text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+          )}
+          aria-pressed={filters?.aiRecommendationsOnly}
+          aria-label="Filter by AI recommendations"
+        >
+          AI recommendations
+        </button>
 
         {hasActiveFilters && (
           <Button

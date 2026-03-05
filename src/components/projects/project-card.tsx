@@ -15,10 +15,13 @@ import { PriorityPill } from './priority-pill'
 import { AIRecommendationsBar } from './ai-recommendations-bar'
 import { QuickActionsMenu } from './quick-actions-menu'
 
-const STATUS_VARIANTS: Record<Project['status'], 'default' | 'secondary' | 'success' | 'outline'> = {
+const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'success' | 'outline'> = {
   Active: 'default',
+  Planning: 'secondary',
+  'On Hold': 'secondary',
   Paused: 'secondary',
   Completed: 'success',
+  Cancelled: 'outline',
   Archived: 'outline',
 }
 

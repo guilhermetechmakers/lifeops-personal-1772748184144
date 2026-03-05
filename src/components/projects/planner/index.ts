@@ -1,0 +1,12 @@
+/**
+ * Project Detail & Planner components
+ */
+
+export { ProjectHeader } from './project-header'
+export { MilestonesPanel } from './milestones-panel'
+export { KanbanBoard } from './kanban-board'
+export { TaskCard } from './task-card'
+export { TimelineView } from './timeline-view'
+export { AIAssistantPane } from './ai-assistant-pane'
+export { ActivityAuditLog } from './activity-audit-log'
+export { CalendarView } from './calendar-view'

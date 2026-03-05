@@ -89,6 +89,22 @@ function filterProjects(
     )
   }
 
+  if (filters?.aiRecommendationsOnly === true) {
+    result = result.filter((p) => p?.aiRecommendation?.trim?.())
+  }
+
+  if (filters?.nextMilestone && filters.nextMilestone !== 'all') {
+    result = result.filter((p) => {
+      const milestone = p?.nextMilestone
+      const due = milestone?.dueDate
+      if (filters.nextMilestone === 'has_milestone') return !!milestone
+      if (!due) return false
+      if (filters.nextMilestone === 'overdue') return isOverdue(due)
+      if (filters.nextMilestone === 'due_this_week') return isDueThisWeek(due)
+      return true
+    })
+  }
+
   return result
 }
 
@@ -125,7 +141,7 @@ export function ProjectsDashboardList() {
     return () => {
       cancelled = true
     }
-  }, [debouncedSearch, filters.status, filters.tags.join(','), filters.priority])
+  }, [debouncedSearch, filters.status, filters.tags.join(','), filters.priority, filters.aiRecommendationsOnly, filters.nextMilestone])
 
   const filteredProjects = useMemo(
     () => filterProjects(projects, filters, debouncedSearch),
