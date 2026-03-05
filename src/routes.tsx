@@ -11,6 +11,7 @@ import { DashboardPage } from '@/pages/dashboard'
 import { ProjectsListPage } from '@/pages/projects-list'
 import { ProjectDetailPage } from '@/pages/project-detail'
 import { ProjectCreatePage } from '@/pages/project-create'
+import { ProjectEditPage } from '@/pages/project-edit'
 import { ContentLibraryPage } from '@/pages/content-library'
 import { ContentEditorPage } from '@/pages/content-editor'
 import { FinanceOverviewPage } from '@/pages/finance-overview'
@@ -54,6 +55,8 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: 'projects', element: <ProjectsListPage /> },
       { path: 'projects/new', element: <ProjectCreatePage /> },
+      { path: 'projects/create', element: <ProjectCreatePage /> },
+      { path: 'projects/:id/edit', element: <ProjectEditPage /> },
       { path: 'projects/:id', element: <ProjectDetailPage /> },
       { path: 'content', element: <ContentLibraryPage /> },
       { path: 'content/new', element: <ContentEditorPage /> },

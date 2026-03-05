@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
 import { isValidEmail } from '@/utils/validation-project'
 import type { Collaborator, PendingCollaborator } from '@/types/create-edit-project'
 

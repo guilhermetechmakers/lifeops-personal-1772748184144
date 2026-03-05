@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
@@ -30,6 +30,7 @@ import type { ProjectDetail, TaskStatus } from '@/types/projects'
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const projectId = id ?? ''
 
   const [data, setData] = useState<ProjectDetail | null>(null)
@@ -167,7 +168,11 @@ export function ProjectDetailPage() {
   )
 
   const handleEdit = (): void => {
-    toast.info('Edit project - navigate to edit flow')
+    if (project?.id) {
+      navigate(`/dashboard/projects/${project.id}/edit`)
+    } else {
+      toast.info('Project ID not found')
+    }
   }
 
   const handleTemplateApply = (): void => {
