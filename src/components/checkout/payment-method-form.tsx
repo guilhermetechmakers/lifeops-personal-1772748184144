@@ -8,6 +8,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { CreditCard, Wallet } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
@@ -202,6 +203,14 @@ export function PaymentMethodForm({
       <p className="text-xs text-muted-foreground">
         Your payment information is encrypted and secure. We never store your full card number.
       </p>
+
+      <Button
+        type="submit"
+        className="w-full gradient-primary text-primary-foreground"
+        disabled={isLoading || disabled}
+      >
+        {isLoading ? 'Verifying...' : 'Add payment method'}
+      </Button>
     </form>
   )
 }

@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Plus,
   Search,
+  CreditCard,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -27,6 +28,7 @@ const navItems = [
 ]
 
 const bottomItems = [
+  { to: '/dashboard/checkout', icon: CreditCard, label: 'Checkout' },
   { to: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
   { to: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ]

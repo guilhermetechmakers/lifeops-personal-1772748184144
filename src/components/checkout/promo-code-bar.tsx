@@ -29,6 +29,8 @@ export function PromoCodeBar({
   disabled = false,
 }: PromoCodeBarProps) {
   const [inputValue, setInputValue] = useState('')
+  const hasApplied = !!appliedCode?.trim()
+  const showError = !!errorMessage && !hasApplied
   const displayValue = hasApplied ? (appliedCode ?? '') : inputValue
 
   const handleApply = () => {
@@ -37,9 +39,6 @@ export function PromoCodeBar({
       onApply(code)
     }
   }
-
-  const hasApplied = !!appliedCode?.trim()
-  const showError = !!errorMessage && !hasApplied
 
   const handleInputChange = (value: string) => {
     if (!hasApplied) setInputValue(value.toUpperCase())
