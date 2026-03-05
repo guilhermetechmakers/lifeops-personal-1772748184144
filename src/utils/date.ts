@@ -49,3 +49,40 @@ export function formatTime(isoString: string | null | undefined): string {
     minute: '2-digit',
   })
 }
+
+export type DueDatePreset = 'all' | 'overdue' | 'this_week' | 'this_month'
+
+export function matchesDueDatePreset(
+  isoString: string | null | undefined,
+  preset: DueDatePreset
+): boolean {
+  if (!isoString || preset === 'all') return true
+  const date = new Date(isoString)
+  if (Number.isNaN(date.getTime())) return false
+  const now = new Date()
+
+  if (preset === 'overdue') {
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const dueDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    return dueDate < today
+  }
+
+  if (preset === 'this_week') {
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay())
+    startOfWeek.setHours(0, 0, 0, 0)
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    endOfWeek.setHours(23, 59, 59, 999)
+    return date >= startOfWeek && date <= endOfWeek
+  }
+
+  if (preset === 'this_month') {
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    )
+  }
+
+  return true
+}
