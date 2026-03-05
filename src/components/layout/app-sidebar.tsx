@@ -32,7 +32,7 @@ const navItems = [
 const bottomItems = [
   { to: '/dashboard/checkout', icon: CreditCard, label: 'Checkout' },
   { to: '/dashboard/finance/history', icon: Receipt, label: 'Order History' },
-  { to: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
+  { to: '/dashboard/notifications', icon: Bell, label: 'Notifications Center' },
   { to: '/onboarding', icon: ShieldCheck, label: 'Permissions & Setup' },
   { to: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ]

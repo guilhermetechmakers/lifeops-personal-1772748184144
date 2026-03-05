@@ -8,6 +8,7 @@ import {
   Clock,
   CheckCheck,
   Undo2,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -28,6 +29,7 @@ export interface NotificationItemProps {
   onView?: (id: string) => void
   onSnooze?: (id: string) => void
   onMarkRead?: (id: string) => void
+  onDismiss?: (id: string) => void
   onUndo?: (id: string) => void
 }
 
@@ -36,6 +38,7 @@ export function NotificationItem({
   onView,
   onSnooze,
   onMarkRead,
+  onDismiss,
   onUndo,
 }: NotificationItemProps) {
   const {
@@ -141,6 +144,18 @@ export function NotificationItem({
           >
             <CheckCheck className="h-4 w-4" />
             Mark as Read
+          </Button>
+        )}
+        {onDismiss && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDismiss(id)}
+            className="text-muted-foreground transition-transform hover:scale-[1.02] hover:text-destructive"
+            aria-label={`Dismiss ${title}`}
+          >
+            <X className="h-4 w-4" />
+            Dismiss
           </Button>
         )}
       </div>

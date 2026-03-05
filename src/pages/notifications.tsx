@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Bell, Inbox } from 'lucide-react'
+import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -36,6 +37,7 @@ export function NotificationsPage() {
     markRead,
     markAllRead,
     snooze,
+    dismiss,
     undo,
     loadPreferences,
     savePreferences,
@@ -99,6 +101,12 @@ export function NotificationsPage() {
     if (id) void markRead([id])
   }
 
+  const handleDismissAll = () => {
+    const ids = filtered.map((n) => n.id).filter(Boolean)
+    if (ids.length) void dismiss(ids)
+    if (ids.length) toast.success('All notifications cleared')
+  }
+
   const handleFiltersChange = (next: Partial<typeof filters>) => {
     updateFilters(next)
   }
@@ -137,6 +145,7 @@ export function NotificationsPage() {
         filters={filters ?? { selectedTypes: [], timeRange: '7d', searchQuery: '', unreadOnly: false }}
         onFiltersChange={handleFiltersChange}
         onMarkAllRead={markAllRead}
+        onDismissAll={handleDismissAll}
       />
 
       {isLoading ? (
@@ -176,6 +185,7 @@ export function NotificationsPage() {
               }}
               onSnooze={handleSnooze}
               onMarkRead={handleMarkRead}
+              onDismiss={(id) => void dismiss([id])}
               onUndo={(id) => void undo(id)}
             />
           ))}

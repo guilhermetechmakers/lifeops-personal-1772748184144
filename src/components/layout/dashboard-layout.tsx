@@ -2,6 +2,15 @@ import { Outlet, useLocation, Link } from 'react-router-dom'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { GlobalSearchBar } from '@/components/dashboard/global-search-bar'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   LayoutDashboard,
   FolderKanban,
@@ -10,6 +19,8 @@ import {
   Heart,
   Plus,
   User,
+  Settings,
+  Bell,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -31,11 +42,44 @@ export function DashboardLayout() {
         <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 sm:px-6">
           <GlobalSearchBar />
           <div className="flex items-center gap-2">
-            <Link to="/dashboard/profile">
-              <Button variant="ghost" size="icon" aria-label="Profile">
-                <User className="h-5 w-5" />
+            <Link to="/dashboard/notifications">
+              <Button variant="ghost" size="icon" aria-label="Notifications">
+                <Bell className="h-5 w-5" />
               </Button>
             </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full" aria-label="Account menu">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={undefined} alt="User" />
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm">JD</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard/profile">
+                      <User className="h-4 w-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard/settings">
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard/notifications">
+                    <Bell className="h-4 w-4" />
+                    Notifications Center
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-4 pb-24 sm:p-6 sm:pb-6">

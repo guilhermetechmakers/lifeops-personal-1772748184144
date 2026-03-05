@@ -9,6 +9,8 @@ import {
   fetchNotifications as apiFetchNotifications,
   markNotificationsRead,
   snoozeNotifications,
+  dismissNotification as apiDismissNotification,
+  dismissNotifications as apiDismissNotifications,
   undoNotification,
   fetchNotificationPreferences,
   updateNotificationPreferences,
@@ -128,6 +130,32 @@ export function useNotifications() {
     [notifications, isMounted]
   )
 
+  const dismiss = useCallback(
+    async (ids: string[]) => {
+      const safeIds = Array.isArray(ids) ? ids.filter(Boolean) : []
+      if (!safeIds.length) return
+      const prev = [...(notifications ?? [])]
+      setNotifications((list) => (list ?? []).filter((n) => !safeIds.includes(n.id)))
+      try {
+        const ok = safeIds.length === 1
+          ? await apiDismissNotification(safeIds[0])
+          : await apiDismissNotifications(safeIds)
+        if (!ok && isMounted()) {
+          setNotifications(prev)
+          toast.error('Failed to dismiss')
+        } else if (isMounted()) {
+          toast.success(safeIds.length === 1 ? 'Dismissed' : 'Dismissed')
+        }
+      } catch {
+        if (isMounted()) {
+          setNotifications(prev)
+          toast.error('Failed to dismiss')
+        }
+      }
+    },
+    [notifications, isMounted]
+  )
+
   const undo = useCallback(
     async (id: string) => {
       if (!id?.trim()) return
@@ -193,6 +221,7 @@ export function useNotifications() {
     markRead,
     markAllRead,
     snooze,
+    dismiss,
     undo,
     loadPreferences,
     savePreferences,

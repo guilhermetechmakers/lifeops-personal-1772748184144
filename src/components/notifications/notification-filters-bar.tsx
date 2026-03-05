@@ -32,12 +32,14 @@ export interface NotificationFiltersBarProps {
   filters: NotificationFilters
   onFiltersChange: (filters: Partial<NotificationFilters>) => void
   onMarkAllRead?: () => void
+  onDismissAll?: () => void
 }
 
 export function NotificationFiltersBar({
   filters,
   onFiltersChange,
   onMarkAllRead,
+  onDismissAll,
 }: NotificationFiltersBarProps) {
   const {
     selectedTypes = [],
@@ -103,6 +105,17 @@ export function NotificationFiltersBar({
               aria-label="Mark all as read"
             >
               Mark all read
+            </Button>
+          )}
+          {onDismissAll && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onDismissAll}
+              aria-label="Clear all notifications"
+              className="text-muted-foreground hover:text-destructive"
+            >
+              Clear all
             </Button>
           )}
         </div>

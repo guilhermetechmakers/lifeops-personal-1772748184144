@@ -12,6 +12,7 @@ export interface NotificationListGroupProps {
   onView?: (id: string) => void
   onSnooze?: (id: string) => void
   onMarkRead?: (id: string) => void
+  onDismiss?: (id: string) => void
   onUndo?: (id: string) => void
 }
 
@@ -23,6 +24,7 @@ export function NotificationListGroup({
   onView,
   onSnooze,
   onMarkRead,
+  onDismiss,
   onUndo,
 }: NotificationListGroupProps) {
   const safeNotifications = Array.isArray(notifications) ? notifications : []
@@ -75,6 +77,7 @@ export function NotificationListGroup({
               onView={onView}
               onSnooze={onSnooze}
               onMarkRead={onMarkRead}
+              onDismiss={onDismiss}
               onUndo={onUndo}
             />
           ))}

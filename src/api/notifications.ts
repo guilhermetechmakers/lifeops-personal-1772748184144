@@ -121,6 +121,28 @@ export async function snoozeNotifications(
   }
 }
 
+/** Dismiss notification (remove from list) */
+export async function dismissNotification(id: string): Promise<boolean> {
+  if (!id?.trim()) return false
+  try {
+    await apiPost('/notifications/dismiss', { id })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Dismiss multiple notifications */
+export async function dismissNotifications(ids: string[]): Promise<boolean> {
+  if (!ids?.length) return false
+  try {
+    await apiPost('/notifications/dismiss', { ids })
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** Undo notification action */
 export async function undoNotification(id: string): Promise<Notification | null> {
   if (!id?.trim()) return null
