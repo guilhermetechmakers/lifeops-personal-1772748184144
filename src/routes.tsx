@@ -19,6 +19,7 @@ import { NotificationsPage } from '@/pages/notifications'
 import { SettingsPage } from '@/pages/settings'
 import { ProfilePage } from '@/pages/profile'
 import { AboutPage } from '@/pages/about'
+import { AboutHelpPage } from '@/pages/about-help'
 import { CheckoutPage } from '@/pages/checkout'
 import { HistoryPage } from '@/pages/history'
 import { NotFoundPage } from '@/pages/not-found'
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
   { path: '/verify-email', element: <VerifyEmailPage /> },
   { path: '/onboarding', element: <OnboardingPage /> },
   { path: '/about', element: <AboutPage /> },
+  { path: '/about-help', element: <AboutHelpPage /> },
   { path: '/privacy', element: <LegalPage title="Privacy Policy" content={privacyContent} /> },
   { path: '/terms', element: <LegalPage title="Terms of Service" content={termsContent} /> },
   {

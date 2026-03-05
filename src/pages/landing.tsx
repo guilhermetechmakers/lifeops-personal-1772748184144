@@ -174,6 +174,9 @@ export function LandingPage() {
             <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">
               About
             </Link>
+            <Link to="/about-help" className="text-sm text-muted-foreground hover:text-foreground">
+              Help
+            </Link>
           </div>
         </div>
       </footer>

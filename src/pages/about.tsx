@@ -11,6 +11,9 @@ export function AboutPage() {
             LifeOps
           </Link>
           <nav className="flex gap-4">
+            <Link to="/about-help" className="text-sm font-medium">
+              Help
+            </Link>
             <Link to="/login">
               <Button variant="ghost">Log in</Button>
             </Link>
@@ -39,7 +42,9 @@ export function AboutPage() {
               <p className="text-muted-foreground">
                   Browse our guides and documentation to get the most out of LifeOps.
                 </p>
-              <Button variant="outline" className="mt-4">Browse guides</Button>
+              <Link to="/about-help">
+                <Button variant="outline" className="mt-4">Browse guides</Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -51,7 +56,9 @@ export function AboutPage() {
                 <p className="text-muted-foreground">
                   Common questions and answers about LifeOps features and billing.
                 </p>
-              <Button variant="outline" className="mt-4">View FAQ</Button>
+              <Link to="/about-help#faq">
+                <Button variant="outline" className="mt-4">View FAQ</Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -63,7 +70,9 @@ export function AboutPage() {
                 <p className="text-muted-foreground">
                   Need help? Reach out to our support team.
                 </p>
-              <Button variant="outline" className="mt-4">Contact form</Button>
+              <Link to="/about-help#support">
+                <Button variant="outline" className="mt-4">Contact form</Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
