@@ -21,6 +21,7 @@ import {
   User,
   Settings,
   Bell,
+  ShieldCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -76,6 +77,13 @@ export function DashboardLayout() {
                   <Link to="/dashboard/notifications">
                     <Bell className="h-4 w-4" />
                     Notifications Center
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/admin">
+                    <ShieldCheck className="h-4 w-4" />
+                    Admin Dashboard
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>

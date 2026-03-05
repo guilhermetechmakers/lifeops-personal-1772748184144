@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
+import { AdminAuthGuard, AdminDashboardShell } from '@/components/admin'
 import { LandingPage } from '@/pages/landing'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
@@ -24,6 +25,9 @@ import { CheckoutPage } from '@/pages/checkout'
 import { HistoryPage } from '@/pages/history'
 import { NotFoundPage } from '@/pages/not-found'
 import { LegalPage } from '@/pages/legal'
+import { AdminOverviewPage } from '@/pages/admin-overview'
+import { AdminUserManagementPage } from '@/pages/admin-user-management'
+import { ContentModerationQueue, SystemAlertsPanel } from '@/components/admin'
 
 const privacyContent = `Privacy Policy
 
@@ -67,6 +71,20 @@ export const router = createBrowserRouter([
       { path: 'profile', element: <ProfilePage /> },
       { path: 'checkout', element: <CheckoutPage /> },
       { path: 'finance/history', element: <HistoryPage /> },
+    ],
+  },
+  {
+    path: '/admin',
+    element: (
+      <AdminAuthGuard>
+        <AdminDashboardShell />
+      </AdminAuthGuard>
+    ),
+    children: [
+      { index: true, element: <AdminOverviewPage /> },
+      { path: 'users', element: <AdminUserManagementPage /> },
+      { path: 'moderation', element: <ContentModerationQueue /> },
+      { path: 'alerts', element: <SystemAlertsPanel /> },
     ],
   },
   { path: '/404', element: <NotFoundPage /> },
